@@ -1,9 +1,9 @@
-
 """
 sankey.py: A reusable library for sankey visualizations
 """
 
 import plotly.graph_objects as go
+
 
 def _code_mapping(df, src, targ):
     # Get distinct labels
@@ -19,6 +19,9 @@ def _code_mapping(df, src, targ):
     df = df.replace({src: lc_map, targ: lc_map})
 
     return df, labels
+
+# Need a new sankey function for working with dictionaries instead of dataframes
+# Almost same function get rid of df calls
 
 
 def make_sankey(df, src, targ, vals=None, **kwargs):

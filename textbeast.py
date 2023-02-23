@@ -1,8 +1,13 @@
-from collections import Counter
+from collections import Counter, defaultdict
+import sankey as sk
 
 
 class TextBeast:
 
+    def __init(self):
+        self.data = defaultdict(dict)
+
+    @staticmethod
     def _default_parser(filename):
         results = {
             'wordcount': Counter(filename.split()),
@@ -10,6 +15,13 @@ class TextBeast:
         }
 
         return results
+
+    # Make a MrBeast video transcript parser for the file we have
+    @staticmethod
+    def beast_parser(filename):
+        # take in the one file
+        # separate into files for different videos
+        pass
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
@@ -34,14 +46,31 @@ class TextBeast:
     # Register a text file with the library. The label is an optional label you’ll use in your
     # visualizations to identify the text
 
+    @staticmethod
     def load_stop_words(stopfile):
-        pass
+        # A list of common or stop words.  These get filtered from each file automatically
+        stop_words = ["a", "the", "is", "are", "an"]
+        for word in stop_words:
+            del stopfile[word]
 
-    # A list of common or stop words.  These get filtered from each file automatically
+        return stopfile
 
     def wordcount_sankey(self, word_list=None, k=5):
-        pass
-    # Map each text to words using a Sankey diagram, where the thickness of the line
-    # is the number of times that word occurs in the text.  Users can specify a particular
-    # set of words, or the words can be the union of the k most common words across
-    # each text file (excluding stop words).
+        # Map each text to words using a Sankey diagram, where the thickness of the line
+        # is the number of times that word occurs in the text.  Users can specify a particular
+        # set of words, or the words can be the union of the k most common words across
+        # each text file (excluding stop words).
+
+        # get wordcount dict for instance
+        wc = self.data['wordcount']
+        # sort the wordcount by most times said
+        sorted_wc = sorted(wc.items(), key=lambda x: x[1], reverse=True)
+        # get the first k words
+        first_k = sorted_wc.iloc[:, :k]
+
+        # We need to find a way to support multiple videos
+
+        # build sankey functionality
+        sk.make_sankey()
+
+

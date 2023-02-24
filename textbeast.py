@@ -16,16 +16,6 @@ class TextBeast:
 
         return results
 
-    # Make a MrBeast video transcript parser for the file we have
-    @staticmethod
-    def csv_parser(filename, col_nums=None, row_nums=None):
-        """
-        Take in a file and get
-        """
-        # take in the one file
-        # separate into files for different videos
-
-
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
         label: unique label for a text file that we parsed
@@ -73,7 +63,21 @@ class TextBeast:
 
         # We need to find a way to support multiple videos
 
+        # Create dataframe from wordcount dictionary
+
         # build sankey functionality
         sk.make_sankey()
+
+    def vis2(self):
+        """
+        Need to use subplots
+        """
+        pass
+
+    def vis3(self):
+        """
+        Need to be comparative on one vis
+        """
+        pass
 
 

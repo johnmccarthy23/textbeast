@@ -23,7 +23,6 @@ def _code_mapping(df, src, targ):
 # Need a new sankey function for working with dictionaries instead of dataframes
 # Almost same function get rid of df calls
 
-
 def make_sankey(df, src, targ, vals=None, **kwargs):
     """ Create a sankey diagram linking src values to
     target values with thickness vals """

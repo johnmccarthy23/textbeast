@@ -18,10 +18,13 @@ class TextBeast:
 
     # Make a MrBeast video transcript parser for the file we have
     @staticmethod
-    def beast_parser(filename):
+    def csv_parser(filename, col_nums=None, row_nums=None):
+        """
+        Take in a file and get
+        """
         # take in the one file
         # separate into files for different videos
-        pass
+
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
@@ -31,12 +34,12 @@ class TextBeast:
         for k, v in results.items():
             self.data[k][label] = v
 
-    def load_text(self, filename, label="", parser=None):
+    def load_text(self, filename, label="", parser=None, **kwargs):
         """ Register a document with the framework """
         if parser is None:  # do default parsing of standard .txt file
             results = TextBeast._default_parser(filename)
         else:
-            results = parser(filename)
+            results = parser(filename, kwargs)
 
         if label is None:
             label = filename

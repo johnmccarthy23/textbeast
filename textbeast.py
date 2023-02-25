@@ -8,51 +8,67 @@ class TextBeast:
         self.data = defaultdict(dict)
 
     @staticmethod
-    def _default_parser(filename):
+    def _default_parser(processed_lines):
         """
-        ...
-        returns : list of words in the file not preprocessed yet
+
         """
-        # Read the file
-        file = open(filename, "r")
-        lines = file.readlines()
+        # Initiate a word list
         word_list =[]
-        for line in lines:
+        # Go over the processed lines
+        for line in processed_lines:
+            # Split the line into words
             line = line.split(" ")
+            # Loop over the words in line
             for word in line:
-                word_list.append(word.strip(" .\n"))
+                word = word.lower().strip(" .\n?!")
+                # Check if word is the empy string
+                if word == "":
+                    pass
+                else:
+                    # Append the stripped words to word_list
+                    word_list.append(word)
 
-        return word_list
-
-    @staticmethod
-    def _preprocessor(words):
-        """
-        Preprocess the data file, get rid of any characters that aren't words or actually spoken
-        filename : the file we have just loaded
-        returns : results
-        """
-        # Must exclude any non dialogue terms included in the existing word list
-
-        # loop through all the words
-        for word in words:
-            # get rid of all non dialogue words
-            if word == "-":
-                words.remove(word)
-            elif word.startswith("["):
-                words.remove(word)
-            elif word.endswith("]"):
-                words.remove(word)
-            elif word.startswith("("):
-                words.remove(word)
-            elif word.endswith(")"):
-                words.remove(word)
-
+        # Get desired results for later into a dictionary
         results = {
-            'wordcount': Counter(words),
-            'numwords': len(Counter(words))
+            'wordcount': Counter(word_list),
+            'numwords': len(Counter(word_list))
         }
 
         return results
+
+    @staticmethod
+    def _preprocessor(filename):
+        """
+        Preprocess the data file, get rid of any characters that aren't words or actually spoken
+        filename : the file we have just loaded
+        returns : processed file
+        """
+        # Must exclude any non dialogue terms included in the existing word list
+        file = open(filename, "r")
+        lines = file.readlines()
+        processed = []
+        for line in lines:
+
+            # If a line contains parentheses remove parentheses and what's inside
+            if "(" in line:
+                # Find indices of parentheses
+                start_pos = line.find("(")
+                stop_pos = line.find(")")
+                # Index string for characters not inside ()
+                line = f"{line[:start_pos]}{line[stop_pos+1:]}"
+            # If a line contains a bracket remove the bracket and what's inside
+            if "[" in line:
+                # Find indices of brackets
+                start_pos = line.find("[")
+                stop_pos = line.find("]")
+                # Index string for characters not inside []
+                line = f"{line[:start_pos]}{line[stop_pos+1:]}"
+            # Remove all dashes from each line in the file
+            line = line.strip("-")
+            processed.append(line)
+        print(f"Processed: {processed}")
+
+        return processed
 
     def _save_results(self, label, results):
         """ Integrate parsing results into internal state
@@ -64,19 +80,18 @@ class TextBeast:
 
     def load_text(self, filename, label="", parser=None):
         """ Register a document with the framework """
-        if parser is None:  # do default parsing of standard .txt file
-            word_list = self._default_parser(filename)
-        else:
-            word_list = parser(filename)
-
         # Preprocess the file
-        p_results = self._preprocessor(word_list)
+
+        processed_file = self._preprocessor(filename)
+        if parser is None:  # do default parsing of standard .txt file
+            results = self._default_parser(processed_file)
+        else:
+            results = parser(processed_file)
 
         if label is None:
             label = filename
 
-        self._save_results(label, p_results)
-
+        self._save_results(label, results)
 
     # Register a text file with the library. The label is an optional label you’ll use in your
     # visualizations to identify the text
@@ -127,4 +142,4 @@ textbeast = TextBeast()
 
 textbeast.load_text("1000BlindPeopleSeeForTheFirstTime.txt", label="vision")
 
-print(textbeast.data)
+print(f"Data Dict: {textbeast.data}")

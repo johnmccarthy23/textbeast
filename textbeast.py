@@ -1,16 +1,21 @@
 from collections import Counter, defaultdict
 import sankey as sk
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
+
+
 
 
 class TextBeast:
 
     def __init__(self):
         self.data = defaultdict(dict)
+        self.stopwords = []
 
-    @staticmethod
-    def _default_parser(processed_lines):
+   
+    def _default_parser(self, processed_lines):
         """
-
+        parser 
         """
         # Initiate a word list
         word_list =[]
@@ -24,9 +29,12 @@ class TextBeast:
                 # Check if word is the empy string
                 if word == "":
                     pass
+                elif word in self.stopwords:
+                    pass
                 else:
                     # Append the stripped words to word_list
                     word_list.append(word)
+        word_list
 
         # Get desired results for later into a dictionary
         results = {
@@ -78,7 +86,7 @@ class TextBeast:
         for k, v in results.items():
             self.data[k][label] = v
 
-    def load_text(self, filename, label="", parser=None):
+    def load_text(self, filename, label="", parser=None, preprocess=False):
         """ Register a document with the framework """
         # Preprocess the file
 
@@ -96,14 +104,18 @@ class TextBeast:
     # Register a text file with the library. The label is an optional label you’ll use in your
     # visualizations to identify the text
 
-    @staticmethod
-    def load_stop_words(stopfile):
-        # A list of common or stop words.  These get filtered from each file automatically
-        stop_words = ["a", "the", "is", "are", "an"]
-        for word in stop_words:
-            del stopfile[word]
+    def load_stop_words(self, stopfile):
+        """
+        Takes in a plain text file of stopwords
+        returns : a list of stopwords
+        """
+        file = open(stopfile, "r")
+        for row in file.readlines():
+            line = row.split(" ")
+            for word in line:
+                self.stopwords.append(word)
 
-        return stopfile
+        return self.stopwords
 
     def wordcount_sankey(self, word_list=None, k=5):
         # Map each text to words using a Sankey diagram, where the thickness of the line
@@ -125,11 +137,25 @@ class TextBeast:
         # build sankey functionality
         sk.make_sankey()
 
-    def vis2(self):
+
+    def make_wordcloud(self, vid_dict, analysis_type):
         """
-        Need to use subplots
+        Make wordcloud
+       
         """
-        pass
+        cloud_dict = vid_dict[analysis_type]
+        # convert counter types to floats
+        for k, v in cloud_dict.items():
+            print(type(cloud_dict[k]))
+            cloud_dict[k] = float(v)            
+            print(type(cloud_dict[k]))
+
+        cloud = WordCloud(background_color="white",width=1000,height=1000, max_words=10,relative_scaling=0.5,
+                        normalize_plurals=False).generate_from_frequencies(vid_dict[analysis_type]) # doesnt work with counter
+        
+        plt.imshow(cloud)
+        
+
 
     def vis3(self):
         """
@@ -140,6 +166,9 @@ class TextBeast:
 
 textbeast = TextBeast()
 
-textbeast.load_text("1000BlindPeopleSeeForTheFirstTime.txt", label="vision")
+textbeast.load_text("./Data/1000BlindPeopleSeeForTheFirstTime.txt", label="vision", preprocess=True)
 
 print(f"Data Dict: {textbeast.data}")
+
+textbeast.make_wordcloud(textbeast.data, "wordcount")
+

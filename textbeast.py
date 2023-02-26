@@ -26,7 +26,7 @@ class TextBeast:
             # Loop over the words in line
             for word in line:
                 word = word.lower().strip(" ,().\n?!")
-                # Check if word is the empy string
+                # Check if word is the empty string
                 if word == "":
                     pass
                 elif word in self.stopwords:
@@ -39,7 +39,7 @@ class TextBeast:
         # Get desired results for later into a dictionary
         results = {
             'wordcount': Counter(word_list),
-            'numwords': len(Counter(word_list))
+            'numwords': len(word_list)
         }
 
         return results
@@ -143,28 +143,51 @@ class TextBeast:
         """
         Make wordcloud
         """
+        # the sub-dictionary of the stat you want to analyze
         analysis_dict = vid_dict[analysis_type]
 
+        # Start making the plt figure
         fig = plt.figure()
         fig.set_facecolor('red')
+        # loop over how many files are in the data
         for i in range(len(analysis_dict)):
+            # access the counter dictionary
             counter_dict = list(analysis_dict.values())[i]
+            # create wordcloud
             cloud = WordCloud(background_color="white",width=1000,height=1000, max_words=10,relative_scaling=0.5,
                             normalize_plurals=False).generate_from_frequencies(counter_dict)
-
+            # For each file make a subplot
             ax = fig.add_subplot((len(analysis_dict) // 3), 3, i + 1)
             ax.imshow(cloud)
             ax.axis("off")
             ax.set_title(f"{list(analysis_dict.keys())[i]}")
         plt.show()
-        
 
+    def numwords_bar(self, vid_dict, analysis_type, title=None, ylabel=None):
+        """
+        Create bar chart of the number of words in each file
+        """
+        # get self.data
+        # access the numwords sub-dictionary
+        # create a bar that represents each file
 
-    def vis3(self):
-        """
-        Need to be comparative on one vis
-        """
-        pass
+        analysis_dict = vid_dict[analysis_type]
+
+        key_list = []
+        value_list = []
+        for k, v in analysis_dict.items():
+            key_list.append(k)
+            value_list.append(v)
+
+        if ylabel is not None:
+            pass
+        else:
+            ylabel = analysis_type
+        # Create visualization
+        plt.bar(list(range(len(analysis_dict))), value_list, tick_label=key_list)
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.show()
 
 
 textbeast = TextBeast()
@@ -179,4 +202,6 @@ textbeast.load_text("./Data/LastToTakeHandOffJetKeepsIt.txt", label="jet")
 print(f"Data Dict: {textbeast.data['wordcount']['prison']}")
 
 textbeast.make_wordcloud(textbeast.data, "wordcount")
+
+textbeast.numwords_bar(textbeast.data, "numwords", "Comparing Length of Video Transcripts", "Word Count")
 

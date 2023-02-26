@@ -1,6 +1,6 @@
 from collections import Counter, defaultdict
 import sankey as sk
-from wordcloud import WordCloud, STOPWORDS
+from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 
@@ -25,7 +25,7 @@ class TextBeast:
             line = line.split(" ")
             # Loop over the words in line
             for word in line:
-                word = word.lower().strip(" .\n?!")
+                word = word.lower().strip(" ,().\n?!")
                 # Check if word is the empy string
                 if word == "":
                     pass
@@ -86,11 +86,11 @@ class TextBeast:
         for k, v in results.items():
             self.data[k][label] = v
 
-    def load_text(self, filename, label="", parser=None, preprocess=False):
+    def load_text(self, filename, label="", parser=None):
         """ Register a document with the framework """
         # Preprocess the file
-
         processed_file = self._preprocessor(filename)
+
         if parser is None:  # do default parsing of standard .txt file
             results = self._default_parser(processed_file)
         else:
@@ -110,9 +110,11 @@ class TextBeast:
         returns : a list of stopwords
         """
         file = open(stopfile, "r")
-        for row in file.readlines():
-            line = row.split(" ")
-            for word in line:
+        for w in file.readlines():
+            if w.startswith("#"):
+                pass
+            else:
+                word = w.strip()
                 self.stopwords.append(word)
 
         return self.stopwords
@@ -137,23 +139,24 @@ class TextBeast:
         # build sankey functionality
         sk.make_sankey()
 
-
     def make_wordcloud(self, vid_dict, analysis_type):
         """
         Make wordcloud
-       
         """
-        cloud_dict = vid_dict[analysis_type]
-        # convert counter types to floats
-        for k, v in cloud_dict.items():
-            print(type(cloud_dict[k]))
-            cloud_dict[k] = float(v)            
-            print(type(cloud_dict[k]))
+        analysis_dict = vid_dict[analysis_type]
 
-        cloud = WordCloud(background_color="white",width=1000,height=1000, max_words=10,relative_scaling=0.5,
-                        normalize_plurals=False).generate_from_frequencies(vid_dict[analysis_type]) # doesnt work with counter
-        
-        plt.imshow(cloud)
+        fig = plt.figure()
+        fig.set_facecolor('red')
+        for i in range(len(analysis_dict)):
+            counter_dict = list(analysis_dict.values())[i]
+            cloud = WordCloud(background_color="white",width=1000,height=1000, max_words=10,relative_scaling=0.5,
+                            normalize_plurals=False).generate_from_frequencies(counter_dict)
+
+            ax = fig.add_subplot((len(analysis_dict) // 3), 3, i + 1)
+            ax.imshow(cloud)
+            ax.axis("off")
+            ax.set_title(f"{list(analysis_dict.keys())[i]}")
+        plt.show()
         
 
 
@@ -166,9 +169,14 @@ class TextBeast:
 
 textbeast = TextBeast()
 
-textbeast.load_text("./Data/1000BlindPeopleSeeForTheFirstTime.txt", label="vision", preprocess=True)
+textbeast.load_stop_words("./stopwords.txt")
 
-print(f"Data Dict: {textbeast.data}")
+print(textbeast.stopwords)
+textbeast.load_text("./Data/1000BlindPeopleSeeForTheFirstTime.txt", label="vision")
+textbeast.load_text("./Data/10000EveryDayYouSurvivePrison.txt", label="prison")
+textbeast.load_text("./Data/LastToTakeHandOffJetKeepsIt.txt", label="jet")
+
+print(f"Data Dict: {textbeast.data['wordcount']['prison']}")
 
 textbeast.make_wordcloud(textbeast.data, "wordcount")
 

@@ -121,10 +121,10 @@ class TextBeast:
         return self.stopwords
 
     def wordcount_sankey(self, word_list=None, k=5):
-        # Map each text to words using a Sankey diagram, where the thickness of the line
-        # is the number of times that word occurs in the text.  Users can specify a particular
-        # set of words, or the words can be the union of the k most common words across
-        # each text file (excluding stop words).
+        """
+        Create a Sankey Diagram showing the word count of the
+        k most said words in each video or from a user_given word_list
+        """
 
         # get wordcount dict for instance
         wc = self.data['wordcount']

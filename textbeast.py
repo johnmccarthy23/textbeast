@@ -1,4 +1,5 @@
 from collections import Counter, defaultdict
+import pandas as pd
 import sankey as sk
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -127,17 +128,43 @@ class TextBeast:
 
         # get wordcount dict for instance
         wc = self.data['wordcount']
-        # sort the wordcount by most times said
-        sorted_wc = sorted(wc.items(), key=lambda x: x[1], reverse=True)
-        # get the first k words
-        first_k = sorted_wc.iloc[:, :k]
+        print(wc)
 
-        # We need to find a way to support multiple videos
+        # creating an empty DataFrame containing columns for left, right, and width
+        df = pd.DataFrame(columns=["video", "word", "count"])
 
-        # Create dataframe from wordcount dictionary
+        # iterating through article, then wordcount
+        for key, val in wc.items():
+            for ke, v in val.items():
+                # appending to df each wordcount and its value
+                df.loc[len(df.index)] = [key, ke, v]
 
-        # build sankey functionality
-        sk.make_sankey()
+        # Separating the data by video
+        df_vision = df[df['video'] == 'vision'].dropna()
+        df_jet = df[df['video'] == 'jet'].dropna()
+        df_prison = df[df['video'] == 'prison'].dropna()
+
+        # Sorting each df's values in desc order
+        df_vision = df_vision.sort_values(by=['count'], ascending = False)
+        df_jet = df_jet.sort_values(by=['count'], ascending = False)
+        df_prison = df_prison.sort_values(by=['count'], ascending = False)
+
+        # Find the k most common words in each video
+        df_jet = df_jet.head(k)
+        df_vision = df_vision.head(k)
+        df_prison = df_prison.head(k)
+
+        # Combine the 3 df's into df_result (to be used for sankey)
+        frames = [df_jet, df_vision, df_prison]
+        df_result = pd.concat(frames)
+
+        # If word_list is given, then use that as the target values
+        # else create Sankey using df_result
+        if word_list is not None:
+            sk.make_sankey(df,'video', 'word_list','count')
+        else:
+            sk.make_sankey(df_result,'video','word','count')
+
 
     def make_wordcloud(self, vid_dict, analysis_type):
         """
@@ -200,6 +227,8 @@ textbeast.load_text("./Data/10000EveryDayYouSurvivePrison.txt", label="prison")
 textbeast.load_text("./Data/LastToTakeHandOffJetKeepsIt.txt", label="jet")
 
 print(f"Data Dict: {textbeast.data['wordcount']['prison']}")
+
+textbeast.wordcount_sankey()
 
 textbeast.make_wordcloud(textbeast.data, "wordcount")
 
